@@ -1,6 +1,15 @@
 {
   "strategy_name": "DailyBuyStrategy3_5_JPA",
   "params": {
+    "roi": {
+      "0": 0.093,
+      "29": 0.049,
+      "53": 0.011,
+      "121": 0
+    },
+    "stoploss": {
+      "stoploss": -0.149
+    },
     "trailing": {
       "trailing_stop": true,
       "trailing_stop_positive": 0.003,
@@ -11,31 +20,14 @@
       "max_open_trades": 5
     },
     "buy": {
-      "dca_candles_modulo": 3,
-      "dca_threshold": 0.01,
-      "max_dca_count": 10,
-      "swing_min_periods": 10,
-      "swing_window": 50,
-      "buy_ema_long": 53,
-      "buy_ema_short": 35,
-      "dca_inc": 2.105,
-      "lookback_length": 4,
-      "upper_trigger_level": 61
+      "buy_ema_long": 159,
+      "buy_ema_short": 38
     },
     "sell": {
-      "new_sl_coef": 0.75,
-      "lower_trigger_level": -94
-    },
-    "roi": {
-      "0": 0.093,
-      "29": 0.049,
-      "53": 0.011,
-      "121": 0
-    },
-    "stoploss": {
-      "stoploss": -0.149
+      "sell_ema_long": 160,
+      "sell_ema_short": 24
     }
   },
   "ft_stratparam_v": 1,
-  "export_time": "2026-02-08 21:11:13.747684+00:00"
+  "export_time": "2026-02-08 21:20:41.162218+00:00"
 }

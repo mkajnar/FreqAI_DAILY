@@ -16,6 +16,7 @@ TIMEFRAME?=5m
 CONFIG?=/tmp/backtest_config.json
 STRATEGY?=DailyBuyStrategy3_5_JPA
 EPOCHS?=1000
+EPOCH_INDEX?=0
 PAIR?=BTC/USDT:USDT
 PAIRS?=BTC/USDT:USDT ETH/USDT:USDT
 NAMESPACE?=default
@@ -41,7 +42,7 @@ NC=\033[0m
 	docker-pull docker-build docker-build-push docker-tag-registry docker-push-registry \
 	docker-run-shell docker-hyperopt \
 	prepare-docker prepare-docker-hyperopt download-data \
-	backtest backtest-docker hyperopt hyperopt-docker \
+	backtest backtest-docker hyperopt hyperopt-docker hyperopt-list hyperopt-show \
 	deploy deploy-dry deploy-5m deploy-15m deploy-1h deploy-4h deploy-1d \
 	stop stop-5m stop-15m stop-1h stop-4h stop-1d stop-all \
 	restart status logs shell \
@@ -73,7 +74,9 @@ help:
 	@echo "  make backtest-docker      - Backtest v Dockeru"
 	@echo ""
 	@echo "  make hyperopt             - Lokální hyperopt"
-	@echo "  make hyperopt-docker      - Hyperopt v Dockeru"
+	@echo "  make hyperopt-docker     - Hyperopt v Dockeru"
+	@echo "  make hyperopt-list      - Seznam hyperopt výsledků"
+	@echo "  make hyperopt-show      - Zobrazení epochy (EPOCH_INDEX=N)"
 	@echo ""
 	@echo "  make deploy               - Generuj a nasad' všechny Daily boty na K8S"
 	@echo "  make deploy-dry           - Generuj YAML bez nasazení"
@@ -102,6 +105,7 @@ help:
 	@echo "  STRATEGY=$(STRATEGY)              - Název strategie"
 	@echo "  PAIRS=$(PAIRS)                    - Trading pairs"
 	@echo "  EPOCHS=$(EPOCHS)                  - Počet epochs pro hyperopt"
+	@echo "  EPOCH_INDEX=$(EPOCH_INDEX)        - Index epochy pro hyperopt-show"
 	@echo "  K8S_NODE=$(K8S_NODE)             - K8S node (188.165.193.142)"
 	@echo "  KUBECONFIG=$(KUBECONFIG)          - Cesta ke kubeconfigu"
 	@echo "  DOCKER_REGISTRY=$(DOCKER_REGISTRY) - K8S Docker registry"
@@ -256,6 +260,24 @@ hyperopt-docker:
 		--spaces buy sell \
 		--print-all \
 		--no-color || true
+
+hyperopt-list:
+	@echo "$(YELLOW)Seznam hyperopt výsledků...$(NC)"
+	@docker run --rm \
+		-v $(PWD)/user_data:/freqtrade/user_data \
+		-v $(PWD):/freqtrade/current \
+		--user $(DOCKER_USER) \
+		$(DOCKER_IMAGE) \
+		hyperopt-list --config /freqtrade/user_data/config.json
+
+hyperopt-show:
+	@echo "$(YELLOW)Zobrazení hyperopt epoch $(EPOCH_INDEX)...$(NC)"
+	@docker run --rm \
+		-v $(PWD)/user_data:/freqtrade/user_data \
+		-v $(PWD):/freqtrade/current \
+		--user $(DOCKER_USER) \
+		$(DOCKER_IMAGE) \
+		hyperopt-show --config /freqtrade/user_data/config.json -n $(EPOCH_INDEX)
 
 # ============================================================================
 # KUBERNETES TARGETS
