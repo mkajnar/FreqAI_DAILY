@@ -10,7 +10,7 @@ def generate_config(config_path, pairs):
     config = {
         "max_open_trades": 5,
         "stake_currency": "USDT",
-        "stake_amount": "100 USDT",
+        "stake_amount": 100.0,
         "tradable_balance_ratio": 0.95,
         "fiat_display_currency": "USD",
         "dry_run": True,
