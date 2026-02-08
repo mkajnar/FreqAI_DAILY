@@ -25,12 +25,12 @@ def generate_config(config_path, pairs):
         },
         "check_buy_timeout": 30,
         "check_sell_timeout": 30,
-        "bid_strategy": {
+        "entry_pricing": {
             "price_side": "other",
             "use_order_book": True,
             "order_book_top": 1
         },
-        "ask_strategy": {
+        "exit_pricing": {
             "price_side": "other",
             "use_order_book": True,
             "order_book_top": 1
