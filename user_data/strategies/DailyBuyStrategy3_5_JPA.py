@@ -71,6 +71,7 @@ class DailyBuyStrategy3_5_JPA(IStrategy):
     dca_threshold = DecimalParameter(0.01, 0.5, default=0.01, space='buy', optimize=False)
     max_dca_count = IntParameter(1, 10, default=10, space='buy', optimize=False)
     dca_inc = DecimalParameter(1.2, 3.0, default=1.5, space='buy', optimize=True)
+    stake_amount_coef = DecimalParameter(0.1, 1.0, default=1.0, space='buy', optimize=True)
 
     # buy_rsi = IntParameter(25, 60, default=55, space='buy', optimize=False)
     # sell_rsi = IntParameter(50, 70, default=70, space='sell', optimize=False)
@@ -154,17 +155,19 @@ class DailyBuyStrategy3_5_JPA(IStrategy):
 
     def custom_stake_amount(self, **kwargs) -> float:
         """
-        Dynamická velikost sázky s optimálním money managementem.
+        Dynamická velikost sázky s optimálním money managementem a hyperoptovatelným koeficientem.
 
         Výpočet:
         - 50% walletu se alokuje na trading (50% buffer)
         - Zbylých 50% se dělí mezi 2 měny (25% per měnu)
-        - 25% per měnu se dělí mezi 11 pozic (initial + 10 DCA)
+        - 25% per měnu se dělí mezi všechny DCA pozice (initial + max_dca_count)
+        - Výsledek se násobí stake_amount_coef pro hyperopt optimalizaci
 
-        Příklad (5000 USDT wallet):
+        Příklad (5000 USDT wallet, stake_amount_coef=0.5):
         - Risk: 5000 * 0.50 = 2500 USDT
         - Per měnu: 2500 / 2 = 1250 USDT
-        - Per pozici: 1250 / 11 = 113.64 USDT
+        - Per pozici (bez coef): 1250 / 11 = 113.64 USDT
+        - Per pozici (s coef): 113.64 * 0.5 = 56.82 USDT ← 50% nižší!
         """
         try:
             balance = self.wallets.get_total_stake_amount()
@@ -179,10 +182,13 @@ class DailyBuyStrategy3_5_JPA(IStrategy):
             num_positions = self.max_dca_count.value + 1
             per_position = per_currency / num_positions
 
+            # Aplikuj hyperoptovatelný koeficient
+            adjusted_position = per_position * self.stake_amount_coef.value
+
             # Minimální sázka (exchange minimum je ~11-30 USDT)
             min_stake = self.config.get("min_stake_amount", 30)
 
-            return max(per_position, min_stake)
+            return max(adjusted_position, min_stake)
         except Exception as e:
             logging.error(f"Error in custom_stake_amount: {e}")
             return self.config.get("min_stake_amount", 30)

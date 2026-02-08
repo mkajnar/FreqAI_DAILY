@@ -10,32 +10,32 @@
       "max_dca_count": 10,
       "swing_min_periods": 10,
       "swing_window": 50,
-      "buy_ema_long": 150,
-      "buy_ema_short": 42,
-      "dca_inc": 2.108,
-      "lookback_length": 5,
-      "upper_trigger_level": 234
+      "buy_ema_long": 177,
+      "buy_ema_short": 8,
+      "dca_inc": 1.743,
+      "lookback_length": 30,
+      "upper_trigger_level": 11
     },
     "sell": {
       "new_sl_coef": 0.75,
-      "lower_trigger_level": -12
+      "lower_trigger_level": -153
     },
     "roi": {
-      "0": 0.261,
-      "31": 0.064,
-      "76": 0.032,
-      "190": 0
+      "0": 0.187,
+      "19": 0.064,
+      "70": 0.028,
+      "185": 0
     },
     "stoploss": {
-      "stoploss": -0.329
+      "stoploss": -0.055
     },
     "trailing": {
       "trailing_stop": true,
-      "trailing_stop_positive": 0.152,
-      "trailing_stop_positive_offset": 0.222,
-      "trailing_only_offset_is_reached": false
+      "trailing_stop_positive": 0.198,
+      "trailing_stop_positive_offset": 0.248,
+      "trailing_only_offset_is_reached": true
     }
   },
   "ft_stratparam_v": 1,
-  "export_time": "2026-02-08 23:02:52.350883+00:00"
+  "export_time": "2026-02-08 23:42:11.084271+00:00"
 }
