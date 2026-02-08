@@ -19,6 +19,7 @@ EPOCHS?=1000
 EPOCH_INDEX?=0
 PAIR?=BTC/USDT:USDT
 PAIRS?=BTC/USDT:USDT ETH/USDT:USDT
+TIMEFRAMES?=5m 15m 1h 4h 1d
 NAMESPACE?=default
 
 KUBECONFIG?=${HOME}/.kube/config
@@ -182,17 +183,20 @@ prepare-docker-hyperopt: prepare-docker
 	@python3 generate_hyperopt_config.py ./user_data/config.json "$(PAIRS)" || true
 
 download-data:
-	@echo "$(YELLOW)Stahování dat ($(PAIRS), TF=$(TIMEFRAME))...$(NC)"
-	@docker run --rm \
-		-v $(PWD)/user_data:/freqtrade/user_data \
-		--user $(DOCKER_USER) \
-		$(DOCKER_IMAGE) \
-		download-data \
-		--exchange bybit \
-		--pairs $(PAIRS) \
-		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
-		--timeframe $(TIMEFRAME) \
-		-c /freqtrade/user_data/config.json || true
+	@echo "$(YELLOW)Stahování dat ($(PAIRS), timeframe: $(TIMEFRAMES))...$(NC)"
+	@for tf in $(TIMEFRAMES); do \
+		echo "Stahování $$tf..."; \
+		docker run --rm \
+			-v $(PWD)/user_data:/freqtrade/user_data \
+			--user $(DOCKER_USER) \
+			$(DOCKER_IMAGE) \
+			download-data \
+			--exchange bybit \
+			--pairs $(PAIRS) \
+			--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
+			--timeframe $$tf \
+			-c /freqtrade/user_data/config.json || true; \
+	done
 	@echo "$(GREEN)Data stažena$(NC)"
 
 # ============================================================================
