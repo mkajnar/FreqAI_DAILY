@@ -26,6 +26,8 @@ K8S_NODE?=188.165.193.142
 DOCKER_IMAGE?=freqtradeorg/freqtrade:latest
 DOCKER_BUILD_IMAGE?=freqtrade-daily:latest
 DOCKERFILE?=Dockerfile
+DOCKER_REGISTRY?=188.165.193.142:5000
+DOCKER_REGISTRY_LOCAL?=localhost:5000
 DOCKER_CONTAINER?=freqtrade-daily
 DOCKER_USER?=1000:1000
 DOCKER_WORKDIR?=/freqtrade
@@ -36,7 +38,8 @@ RED=\033[0;31m
 NC=\033[0m
 
 .PHONY: help all \
-	docker-pull docker-build docker-build-push docker-run-shell docker-hyperopt \
+	docker-pull docker-build docker-build-push docker-tag-registry docker-push-registry \
+	docker-run-shell docker-hyperopt \
 	prepare-docker prepare-docker-hyperopt download-data \
 	backtest backtest-docker hyperopt hyperopt-docker \
 	deploy deploy-dry deploy-5m deploy-15m deploy-1h deploy-4h deploy-1d \
@@ -57,8 +60,11 @@ help:
 	@echo "  make help                 - Zobraz tuto nápovědu"
 	@echo "  make docker-pull          - Stáhni Docker image"
 	@echo "  make docker-build         - Buildni vlastní Docker image"
-	@echo "  make docker-build-push    - Buildni a pushni do registry"
-	@echo "  make docker-run-shell     - Spusť interaktivní shell v Dockeru"
+	@echo "  make docker-build-push    - Buildni a pushni do Docker Hub"
+	@echo "  make docker-tag-registry  - Otaguje image pro K8S registry"
+	@echo "  make docker-push-registry - Pushni image do K8S registry $(DOCKER_REGISTRY)"
+	@echo "  make docker-registry-init - Build a push do K8S registry"
+	@echo ""
 	@echo ""
 	@echo "  make prepare-docker       - Připrav Docker (config + strategie)"
 	@echo "  make download-data        - Stáhni tržní data pro hyperopt"
@@ -98,6 +104,7 @@ help:
 	@echo "  EPOCHS=$(EPOCHS)                  - Počet epochs pro hyperopt"
 	@echo "  K8S_NODE=$(K8S_NODE)             - K8S node (188.165.193.142)"
 	@echo "  KUBECONFIG=$(KUBECONFIG)          - Cesta ke kubeconfigu"
+	@echo "  DOCKER_REGISTRY=$(DOCKER_REGISTRY) - K8S Docker registry"
 	@echo ""
 
 # ============================================================================
@@ -119,6 +126,24 @@ docker-build-push: docker-build
 	@docker tag $(DOCKER_BUILD_IMAGE) $(DOCKER_BUILD_IMAGE)
 	@docker push $(DOCKER_BUILD_IMAGE) || echo "$(YELLOW)Push selhal - pravděpodobně není přihlášení do registry$(NC)"
 	@echo "$(GREEN)Image pushnut: $(DOCKER_BUILD_IMAGE)$(NC)"
+
+docker-tag-registry:
+	@echo "$(YELLOW)Tagování image pro lokální registry $(DOCKER_REGISTRY)...$(NC)"
+	@docker tag $(DOCKER_BUILD_IMAGE) $(DOCKER_REGISTRY)/$(DOCKER_BUILD_IMAGE)
+	@docker tag $(DOCKER_BUILD_IMAGE) $(DOCKER_REGISTRY_LOCAL)/$(DOCKER_BUILD_IMAGE)
+	@echo "$(GREEN)Image otagován pro registry$(NC)"
+
+docker-push-registry:
+	@echo "$(YELLOW)Push do lokální registry $(DOCKER_REGISTRY)...$(NC)"
+	@docker push $(DOCKER_REGISTRY)/$(DOCKER_BUILD_IMAGE) || echo "$(YELLOW)Push selhal - zkontroluj připojení k registry$(NC)"
+	@docker push $(DOCKER_REGISTRY_LOCAL)/$(DOCKER_BUILD_IMAGE) 2>/dev/null || echo "$(YELLOW)Local registry push skipped (možná běží jen na K8S)$(NC)"
+	@echo "$(GREEN)Image pushnut do registry$(NC)"
+
+docker-registry-init: docker-build
+	@echo "$(YELLOW)Inicializace a push do K8S registry $(DOCKER_REGISTRY)...$(NC)"
+	@docker tag $(DOCKER_BUILD_IMAGE) $(DOCKER_REGISTRY)/$(DOCKER_BUILD_IMAGE)
+	@docker push $(DOCKER_REGISTRY)/$(DOCKER_BUILD_IMAGE)
+	@echo "$(GREEN)Image $(DOCKER_BUILD_IMAGE) je nyní dostupný jako $(DOCKER_REGISTRY)/$(DOCKER_BUILD_IMAGE)$(NC)"
 
 docker-run-shell:
 	@echo "$(YELLOW)Spouštění Docker kontejneru...$(NC)"
