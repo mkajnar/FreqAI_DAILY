@@ -234,7 +234,7 @@ hyperopt:
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		--epochs $(EPOCHS) \
 		--hyperopt-loss SharpeHyperOptLoss \
-		--min-trades 3 || true
+		--no-color || true
 
 hyperopt-docker:
 	@echo "$(YELLOW)Spouštění hyperoptu v Dockeru...$(NC)"
@@ -251,7 +251,7 @@ hyperopt-docker:
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		--epochs $(EPOCHS) \
 		--hyperopt-loss SharpeHyperOptLoss \
-		--min-trades 3 || true
+		--no-color || true
 
 # ============================================================================
 # KUBERNETES TARGETS

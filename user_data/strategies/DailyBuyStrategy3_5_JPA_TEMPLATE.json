@@ -1,0 +1,41 @@
+{
+  "strategy_name": "DailyBuyStrategy3_5_JPA",
+  "params": {
+    "trailing": {
+      "trailing_stop": true,
+      "trailing_stop_positive": 0.003,
+      "trailing_stop_positive_offset": 0.008,
+      "trailing_only_offset_is_reached": true
+    },
+    "max_open_trades": {
+      "max_open_trades": 5
+    },
+    "buy": {
+      "dca_candles_modulo": 3,
+      "dca_threshold": 0.01,
+      "max_dca_count": 10,
+      "swing_min_periods": 10,
+      "swing_window": 50,
+      "buy_ema_long": 53,
+      "buy_ema_short": 22,
+      "dca_inc": 1.376,
+      "lookback_length": 25,
+      "upper_trigger_level": 95
+    },
+    "sell": {
+      "new_sl_coef": 0.75,
+      "lower_trigger_level": -212
+    },
+    "roi": {
+      "0": 0.231,
+      "39": 0.077,
+      "98": 0.023,
+      "147": 0
+    },
+    "stoploss": {
+      "stoploss": -0.083
+    }
+  },
+  "ft_stratparam_v": 1,
+  "export_time": "2026-02-08 21:08:25.648679+00:00"
+}
