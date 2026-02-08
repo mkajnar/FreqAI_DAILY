@@ -189,8 +189,8 @@ for BOT_DIR_NAME in "${!TIMEFRAME_CONFIG[@]}"; do
     fi
 
     # Nahrazení placeholderů
-    sed -i "s/{TIMEFRAME}/${TIMEFRAME}/g" "$TEMP_STRATEGY_FILE"
-    sed -i "s/{LEVERAGE}/${LEVERAGE}/g" "$TEMP_STRATEGY_FILE"
+    sed -i "s|{{LEVERAGE}}|${LEVERAGE}|g" "$TEMP_STRATEGY_FILE"
+    sed -i "s|{{CLASS_NAME}}|DailyBuyStrategy3_5_JPA|g" "$TEMP_STRATEGY_FILE"
 
     STRATEGY_CLASS_NAME=$(grep "class .*\(IStrategy\)" "$TEMP_STRATEGY_FILE" | head -1 | sed 's/class \([a-zA-Z0-9_]*\)(IStrategy).*/\1/') || true
     if [ -z "${STRATEGY_CLASS_NAME:-}" ]; then
