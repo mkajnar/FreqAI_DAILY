@@ -57,6 +57,7 @@ NC=\033[0m
 	hyperopt-all hyperopt-all-docker \
 	hyperopt-all-nosl hyperopt-all-nosl-docker \
 	hyperopt-all-nosltsl \
+	hyperopt-list-docker hyperopt-show-docker \
 	backtest quick-backtest backtest-docker \
 	data \
 	list show \
@@ -490,6 +491,36 @@ hyperopt-all-nosltsl: copy-strategy
 		-j 2 || true"
 
 # ============================================================================
+# HYPEROPT RESULTS - DOCKER
+# ============================================================================
+
+hyperopt-list-docker:
+	@echo "$(YELLOW)Seznam hyperopt výsledků...$(NC)"
+	@docker run --rm \
+		-v $(PWD)/user_data:/freqtrade/user_data \
+		--user $(DOCKER_USER) \
+		$(DOCKER_IMAGE) \
+		hyperopt-list --config /freqtrade/user_data/config.json --profitable
+
+hyperopt-show-docker:
+	@echo "$(YELLOW)Zobrazení hyperopt epochy $(EPOCH)...$(NC)"
+	@docker run --rm \
+		-v $(PWD)/user_data:/freqtrade/user_data \
+		--user $(DOCKER_USER) \
+		$(DOCKER_IMAGE) \
+		hyperopt-show --config /freqtrade/user_data/config.json -n $(EPOCH)
+	@echo ""
+	@echo "$(YELLOW)Exportuji parametry do JSON...$(NC)"
+	@docker run --rm \
+		-v $(PWD)/user_data:/freqtrade/user_data \
+		--user $(DOCKER_USER) \
+		$(DOCKER_IMAGE) \
+		hyperopt-show --config /freqtrade/user_data/config.json -n $(EPOCH) --json > user_data/hyperopt_epoch_$(EPOCH).json 2>/dev/null || true
+	@if [ -f "user_data/hyperopt_epoch_$(EPOCH).json" ]; then \
+		echo "$(GREEN)✓ Parametry exportovány do user_data/hyperopt_epoch_$(EPOCH).json$(NC)"; \
+	fi
+
+# ============================================================================
 # FREQTRADE OPERACE - BACKTESTING
 # ============================================================================
 
@@ -723,8 +754,9 @@ help:
 	@echo ""
 	@echo "$(YELLOW)HYPEROPT VÝSLEDKY:$(NC)"
 	@echo "  make list                      - Výpis profitabilních výsledků (Kubernetes)"
-	@echo "  make list-docker               - Export nejlepšího výsledku do JSON (Docker)"
+	@echo "  make list-docker               - Seznam hyperopt výsledků (Docker)"
 	@echo "  make show                      - Zobrazit konkrétní výsledek (EPOCH=N)"
+	@echo "  make show EPOCH=40             - Zobraz epochu 40 + export do JSON"
 	@echo ""
 	@echo "$(YELLOW)KUBERNETES MANAGEMENT:$(NC)"
 	@echo "  make status                    - Status deploymentu a podu"
