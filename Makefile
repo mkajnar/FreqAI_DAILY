@@ -76,10 +76,12 @@ help:
 	@echo "  make daily-workflow       - Kompletní workflow: hyperopt -> backtest -> deploy"
 	@echo ""
 	@echo "PROMĚNNÉ:"
-	@echo "  TIMEFRAME=$(TIMEFRAME)    - Timeframe (5m, 15m, 1h, 4h, 1d)"
-	@echo "  STRATEGY=$(STRATEGY)      - Název strategie"
-	@echo "  PAIRS=$(PAIRS)            - Trading pairs"
-	@echo "  EPOCHS=$(EPOCHS)          - Počet epochs pro hyperopt"
+	@echo "  TIMEFRAME=$(TIMEFRAME)             - Timeframe (5m, 15m, 1h, 4h, 1d)"
+	@echo "  STRATEGY=$(STRATEGY)              - Název strategie"
+	@echo "  PAIRS=$(PAIRS)                    - Trading pairs"
+	@echo "  EPOCHS=$(EPOCHS)                  - Počet epochs pro hyperopt"
+	@echo "  K8S_NODE=$(K8S_NODE)             - K8S node (188.165.193.142)"
+	@echo "  KUBECONFIG=$(KUBECONFIG)          - Cesta ke kubeconfigu"
 	@echo ""
 
 # ============================================================================
