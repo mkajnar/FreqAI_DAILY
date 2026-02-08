@@ -16,11 +16,11 @@ DB_BASE_HOST_PATH="${DB_BASE_HOST_PATH:-/mnt/ft}"
 # DEPLOY=false => pouze generuje YAML soubory
 DEPLOY=${DEPLOY:-true}
 
-# Konstantní credentials (placeholdery)
-EXCHANGE_KEY="K"
-EXCHANGE_SECRET="S"
-API_PASSWORD="Cac8Deal"
-API_USERNAME="freqtrade"
+# Konstantní credentials (načítají se z prostředí nebo jsou placeholdery)
+EXCHANGE_KEY="${EXCHANGE_KEY:-K}"
+EXCHANGE_SECRET="${EXCHANGE_SECRET:-S}"
+API_PASSWORD="${API_PASSWORD:-ChangeMe123!}"
+API_USERNAME="${API_USERNAME:-freqtrade}"
 
 # Základní NodePort
 BASE_NODEPORT=30400
