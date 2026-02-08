@@ -19,7 +19,7 @@ DEPLOY=${DEPLOY:-true}
 # Konstantní credentials (načítají se z prostředí nebo jsou placeholdery)
 EXCHANGE_KEY="${EXCHANGE_KEY:-K}"
 EXCHANGE_SECRET="${EXCHANGE_SECRET:-S}"
-API_PASSWORD="${API_PASSWORD:-ChangeMe123!}"
+API_PASSWORD="${API_PASSWORD:-freqtrade}"
 API_USERNAME="${API_USERNAME:-freqtrade}"
 
 # Základní NodePort
