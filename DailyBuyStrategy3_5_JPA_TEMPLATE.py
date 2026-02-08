@@ -1,5 +1,4 @@
 import datetime
-import logging
 from typing import Optional, Union, List, Tuple
 
 import numpy as np
@@ -71,42 +70,33 @@ class {{CLASS_NAME}}(IStrategy):
 
     def generate_dca_orders(self, total_amount: float, num_currencies: int, num_dca_positions: int,
                             increment: float = 1.25, minimal_stake: float = 0) -> List[float]:
-        try:
-            def find_initial_order(total_amount: float, increment: float, num_dca_positions: int,
-                                   num_currencies: int) -> float:
-                orders = [1]
-                for _ in range(1, num_dca_positions + 1):
-                    orders.append(orders[-1] * increment)
-                total_cost_per_currency = sum(orders)
-                initial_order = total_amount / (total_cost_per_currency * num_currencies)
-                return max(round(initial_order, 2), minimal_stake)
-
-            initial_order = find_initial_order(total_amount, increment, num_dca_positions, num_currencies)
-            orders = [initial_order]
+        def find_initial_order(total_amount: float, increment: float, num_dca_positions: int,
+                               num_currencies: int) -> float:
+            orders = [1]
             for _ in range(1, num_dca_positions + 1):
-                next_order = round(orders[-1] * increment, 2)
-                orders.append(max(next_order, minimal_stake))
-            return orders
-        except Exception as e:
-            logging.info(f"Exception occurred: {e}")
-            return [max(1.25 ** i, minimal_stake) for i in range(num_dca_positions)]
+                orders.append(orders[-1] * increment)
+            total_cost_per_currency = sum(orders)
+            initial_order = total_amount / (total_cost_per_currency * num_currencies)
+            return max(round(initial_order, 2), minimal_stake)
+
+        initial_order = find_initial_order(total_amount, increment, num_dca_positions, num_currencies)
+        orders = [initial_order]
+        for _ in range(1, num_dca_positions + 1):
+            next_order = round(orders[-1] * increment, 2)
+            orders.append(max(next_order, minimal_stake))
+        return orders
 
     def leverage(self, pair: str, current_time: datetime, current_rate: float,
                  proposed_leverage: float, max_leverage: float, entry_tag: Optional[str],
                  side: str, **kwargs) -> float:
-        try:
-            atr_percent = getattr(self, 'current_atr_percent', 1.0)
+        atr_percent = getattr(self, 'current_atr_percent', 1.0)
 
-            if atr_percent < 0.5:
-                return 3.0
-            elif atr_percent < 1.5:
-                return 2.0
-            else:
-                return 1.0
-
-        except Exception as e:
-            logging.error(f"Error in leverage: {e}")
+        if atr_percent < 0.5:
+            return 3.0
+        elif atr_percent < 1.5:
             return 2.0
+        else:
+            return 1.0
 
     def calculate_swing(self, dataframe):
         swing_low = pd.Series(
@@ -126,17 +116,13 @@ class {{CLASS_NAME}}(IStrategy):
         return dataframe['pp'], dataframe['r1'], dataframe['s1']
 
     def custom_stake_amount(self, **kwargs) -> float:
-        try:
-            balance = self.wallets.get_total_stake_amount()
-            risk_balance = balance * 0.50
-            per_currency = risk_balance / 2.0
-            num_positions = self.max_dca_count.value + 1
-            per_position = per_currency / num_positions
-            min_stake = self.config.get("min_stake_amount", 30)
-            return max(per_position, min_stake)
-        except Exception as e:
-            logging.error(f"Error in custom_stake_amount: {e}")
-            return self.config.get("min_stake_amount", 30)
+        balance = self.wallets.get_total_stake_amount()
+        risk_balance = balance * 0.50
+        per_currency = risk_balance / 2.0
+        num_positions = self.max_dca_count.value + 1
+        per_position = per_currency / num_positions
+        min_stake = self.config.get("min_stake_amount", 30)
+        return max(per_position, min_stake)
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
@@ -194,8 +180,6 @@ class {{CLASS_NAME}}(IStrategy):
         if not informative.empty:
             informative = informative.reindex(dataframe.index, method='nearest')
             conditions.append(dataframe['close'] < informative['close'].shift(1))
-        else:
-            logging.info(f"No data available for {metadata['pair']} in '{level}' timeframe. Skipping this condition.")
 
         conditions.append((dataframe['volume'] > 0))
 
@@ -288,7 +272,6 @@ class {{CLASS_NAME}}(IStrategy):
 
         dca_list = self.get_dca_list(trade)
         if dca_list and current_rate > dca_list[-1]:
-            logging.info(f"Actual price {current_rate} is higher than last DCA price {dca_list[-1]}. DCA will not applied.")
             return None
 
         if (last_index % self.dca_candles_modulo.value != 0):
@@ -296,14 +279,10 @@ class {{CLASS_NAME}}(IStrategy):
 
         if last_candle['res_signal_breaked']:
             self.confirm_dca(current_rate, trade)
-            try:
-                available_stake_amount = self.wallets.get_available_stake_amount()
-                new_dca_amount, new_threshold = self.calculate_dca_amount_and_threshold(available_stake_amount, last_threshold)
-                self.thresholds[trade.pair] = new_threshold
-                logging.info(f"{current_time} - DCA triggered for {trade.pair}. Adjusting position with additional stake {new_dca_amount}")
-                return new_dca_amount
-            except Exception as e:
-                logging.error(f"Exception occurred: {e}")
+            available_stake_amount = self.wallets.get_available_stake_amount()
+            new_dca_amount, new_threshold = self.calculate_dca_amount_and_threshold(available_stake_amount, last_threshold)
+            self.thresholds[trade.pair] = new_threshold
+            return new_dca_amount
 
         return None
 
@@ -311,7 +290,7 @@ class {{CLASS_NAME}}(IStrategy):
         try:
             dcas = CustomDataWrapper.get_custom_data(trade_id=trade.id, key="DCA")[0].value
             return dcas
-        except Exception as ex:
+        except Exception:
             pass
         return []
 
@@ -319,7 +298,7 @@ class {{CLASS_NAME}}(IStrategy):
         try:
             sl = CustomDataWrapper.get_custom_data(trade_id=trade.id, key="SL")[0].value
             return sl
-        except Exception as ex:
+        except Exception:
             pass
         return trade.stop_loss
 
