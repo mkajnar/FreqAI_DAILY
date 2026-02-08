@@ -43,7 +43,7 @@ NC=\033[0m
 
 .PHONY: help all \
 	docker-pull docker-run-shell docker-hyperopt-base \
-	prepare-docker-hyperopt prepare-docker-hyperopt-full download-data-docker \
+	prepare-docker-hyperopt prepare-docker-hyperopt-full prepare-docker-hyperopt-light download-data-docker download-data-docker-no1m \
 	_check_pod _show_config \
 	test test-unit test-integration test-syntax test-pep8 test-coverage \
 	hyperopt-save hyperopt-validate hyperopt-show hyperopt-backup hyperopt-inject \
@@ -102,7 +102,7 @@ prepare-docker-hyperopt:
 	@echo "$(GREEN)Docker hyperopt připraven (config + strategie v $(PWD)/user_data)$(NC)"
 
 download-data-docker:
-	@echo "$(YELLOW)Stahování tržních dat (PAIRS=$(PAIRS))...$(NC)"
+	@echo "$(YELLOW)Stahování tržních dat (PAIRS=$(PAIRS)) - včetně 1m...$(NC)"
 	@for tf in 1m 5m 15m 1h 2h 4h 1d 1w; do \
 		echo "  Stahování $$tf..."; \
 		docker run --rm \
@@ -121,10 +121,35 @@ download-data-docker:
 	@echo "$(YELLOW)Kontrola stažených dat:$(NC)"
 	@ls -la user_data/data/bybit/ 2>/dev/null || echo "Žádná data nenalezena"
 	@echo ""
-	@echo "$(GREEN)Data stažena$(NC)"
+	@echo "$(GREEN)Data stažena (včetně 1m)$(NC)"
+
+download-data-docker-no1m:
+	@echo "$(YELLOW)Stahování tržních dat (PAIRS=$(PAIRS)) - BEZ 1m...$(NC)"
+	@for tf in 5m 15m 1h 2h 4h 1d 1w; do \
+		echo "  Stahování $$tf..."; \
+		docker run --rm \
+			-v $(PWD)/user_data:/freqtrade/user_data \
+			--user $(DOCKER_USER) \
+			$(DOCKER_IMAGE) \
+			download-data \
+			--exchange bybit \
+			--pairs $(PAIRS) \
+			--timerange $(DATA_START)-$(DATA_END) \
+			--timeframe $$tf \
+			--erase \
+			-c /freqtrade/user_data/config.json || true; \
+	done
+	@echo ""
+	@echo "$(YELLOW)Kontrola stažených dat:$(NC)"
+	@ls -la user_data/data/bybit/ 2>/dev/null || echo "Žádná data nenalezena"
+	@echo ""
+	@echo "$(GREEN)Data stažena (BEZ 1m)$(NC)"
 
 prepare-docker-hyperopt-full: prepare-docker-hyperopt download-data-docker
-	@echo "$(GREEN)Docker hyperopt zcela připraven (config + strategie + data)$(NC)"
+	@echo "$(GREEN)Docker hyperopt zcela připraven (config + strategie + data včetně 1m)$(NC)"
+
+prepare-docker-hyperopt-light: prepare-docker-hyperopt download-data-docker-no1m
+	@echo "$(GREEN)Docker hyperopt připraven (config + strategie + data BEZ 1m)$(NC)"
 
 # ============================================================================
 # KUBERNETES HELPER FUNKCE
@@ -267,7 +292,7 @@ hyperopt-buy: copy-strategy
 		-e $(EPOCHS) \
 		-j 2 || true"
 
-hyperopt-buy-docker: prepare-docker-hyperopt-full
+hyperopt-buy-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (BUY)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
@@ -369,7 +394,7 @@ hyperopt-all-nosl: copy-strategy
 		-e $(EPOCHS) \
 		-j 2 || true"
 
-hyperopt-all-nosl-docker: prepare-docker-hyperopt-full
+hyperopt-all-nosl-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (BUY, SELL, ROI, TRAILING - bez STOPLOSS)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
@@ -387,7 +412,7 @@ hyperopt-all-nosl-docker: prepare-docker-hyperopt-full
 		-e $(EPOCHS) \
 		-j 8 || true
 
-hyperopt-sell-docker: prepare-docker-hyperopt-full
+hyperopt-sell-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (SELL)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
@@ -405,7 +430,7 @@ hyperopt-sell-docker: prepare-docker-hyperopt-full
 		-e $(EPOCHS) \
 		-j 8 || true
 
-hyperopt-trailing-docker: prepare-docker-hyperopt-full
+hyperopt-trailing-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (TRAILING STOP)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
@@ -423,7 +448,7 @@ hyperopt-trailing-docker: prepare-docker-hyperopt-full
 		-e $(EPOCHS) \
 		-j 8 || true
 
-hyperopt-roi-docker: prepare-docker-hyperopt-full
+hyperopt-roi-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (ROI)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
@@ -441,7 +466,7 @@ hyperopt-roi-docker: prepare-docker-hyperopt-full
 		-e $(EPOCHS) \
 		-j 8 || true
 
-hyperopt-quick-docker: prepare-docker-hyperopt-full
+hyperopt-quick-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění QUICK hyperopt na Dockeru (BUY, 50 epoch)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
@@ -459,7 +484,7 @@ hyperopt-quick-docker: prepare-docker-hyperopt-full
 		-e 50 \
 		-j 8 || true
 
-hyperopt-all-docker: prepare-docker-hyperopt-full
+hyperopt-all-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (BUY, SELL, ROI, STOPLOSS, TRAILING)...$(NC)"
 	@docker run --rm -it \
 		-v $(PWD)/user_data:/freqtrade/user_data \
