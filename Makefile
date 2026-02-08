@@ -60,7 +60,7 @@ help:
 	@echo "  make help                 - Zobraz tuto nápovědu"
 	@echo "  make docker-pull          - Stáhni Docker image"
 	@echo "  make docker-build         - Buildni vlastní Docker image"
-	@echo "  make docker-build-push    - Buildni a pushni do Docker Hub"
+	@echo "  make docker-build-push    - Buildni a pushni do Docker Hub (nutné: docker login)"
 	@echo "  make docker-tag-registry  - Otaguje image pro K8S registry"
 	@echo "  make docker-push-registry - Pushni image do K8S registry $(DOCKER_REGISTRY)"
 	@echo "  make docker-registry-init - Build a push do K8S registry"
@@ -122,10 +122,10 @@ docker-build:
 	@echo "$(GREEN)Image vytvořen: $(DOCKER_BUILD_IMAGE)$(NC)"
 
 docker-build-push: docker-build
-	@echo "$(YELLOW)Push Docker image do registry...$(NC)"
+	@echo "$(YELLOW)Push Docker image do Docker Hub...$(NC)"
 	@docker tag $(DOCKER_BUILD_IMAGE) $(DOCKER_BUILD_IMAGE)
-	@docker push $(DOCKER_BUILD_IMAGE) || echo "$(YELLOW)Push selhal - pravděpodobně není přihlášení do registry$(NC)"
-	@echo "$(GREEN)Image pushnut: $(DOCKER_BUILD_IMAGE)$(NC)"
+	@docker push $(DOCKER_BUILD_IMAGE) || echo "$(YELLOW)Push selhal - musíš být přihlášený: docker login$(NC)"
+	@echo "$(GREEN)Image $(DOCKER_BUILD_IMAGE) pushnut do Docker Hub$(NC)"
 
 docker-tag-registry:
 	@echo "$(YELLOW)Tagování image pro lokální registry $(DOCKER_REGISTRY)...$(NC)"
