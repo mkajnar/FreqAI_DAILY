@@ -233,7 +233,8 @@ hyperopt:
 		--timeframe $(TIMEFRAME) \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		--epochs $(EPOCHS) \
-		--hyperopt-loss SharpeHyperOptLoss \
+		--spaces buy sell \
+		--print-all \
 		--no-color || true
 
 hyperopt-docker:
@@ -250,7 +251,8 @@ hyperopt-docker:
 		--timeframe $(TIMEFRAME) \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		--epochs $(EPOCHS) \
-		--hyperopt-loss SharpeHyperOptLoss \
+		--spaces buy sell \
+		--print-all \
 		--no-color || true
 
 # ============================================================================

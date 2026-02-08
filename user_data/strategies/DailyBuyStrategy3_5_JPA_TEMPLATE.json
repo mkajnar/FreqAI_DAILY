@@ -17,25 +17,25 @@
       "swing_min_periods": 10,
       "swing_window": 50,
       "buy_ema_long": 53,
-      "buy_ema_short": 22,
-      "dca_inc": 1.376,
-      "lookback_length": 25,
-      "upper_trigger_level": 95
+      "buy_ema_short": 35,
+      "dca_inc": 2.105,
+      "lookback_length": 4,
+      "upper_trigger_level": 61
     },
     "sell": {
       "new_sl_coef": 0.75,
-      "lower_trigger_level": -212
+      "lower_trigger_level": -94
     },
     "roi": {
-      "0": 0.231,
-      "39": 0.077,
-      "98": 0.023,
-      "147": 0
+      "0": 0.093,
+      "29": 0.049,
+      "53": 0.011,
+      "121": 0
     },
     "stoploss": {
-      "stoploss": -0.083
+      "stoploss": -0.149
     }
   },
   "ft_stratparam_v": 1,
-  "export_time": "2026-02-08 21:08:25.648679+00:00"
+  "export_time": "2026-02-08 21:11:13.747684+00:00"
 }
