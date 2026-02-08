@@ -6,12 +6,12 @@
 # ============================================================================
 
 # Defaultní proměnné
-DATA_START?=20260101
-DATA_END?=20260125
-HYPEROPT_START?=20260101
-HYPEROPT_END?=20260110
-BACKTEST_START?=20260110
-BACKTEST_END?=20260125
+DATA_START?=20250101
+DATA_END?=20260208
+HYPEROPT_START?=20250101
+HYPEROPT_END?=20260208
+BACKTEST_START?=20260101
+BACKTEST_END?=20260208
 TIMEFRAME?=5m
 CONFIG?=/tmp/backtest_config.json
 STRATEGY?=DailyBuyStrategy3_5_JPA
@@ -193,7 +193,7 @@ download-data:
 			download-data \
 			--exchange bybit \
 			--pairs $(PAIRS) \
-			--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
+			--timerange $(DATA_START)-$(DATA_END) \
 			--timeframe $$tf \
 			-c /freqtrade/user_data/config.json || true; \
 	done
