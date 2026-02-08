@@ -39,7 +39,9 @@ NC=\033[0m
 	docker-pull docker-build docker-build-push docker-run-shell docker-hyperopt \
 	prepare-docker prepare-docker-hyperopt download-data \
 	backtest backtest-docker hyperopt hyperopt-docker \
-	deploy deploy-dry stop restart status logs shell \
+	deploy deploy-dry deploy-5m deploy-15m deploy-1h deploy-4h deploy-1d \
+	stop stop-5m stop-15m stop-1h stop-4h stop-1d stop-all \
+	restart status logs shell \
 	daily-workflow
 
 # ============================================================================
@@ -67,11 +69,25 @@ help:
 	@echo "  make hyperopt             - Lokální hyperopt"
 	@echo "  make hyperopt-docker      - Hyperopt v Dockeru"
 	@echo ""
-	@echo "  make deploy               - Generuj a nasad' Daily boty na K8S"
-	@echo "  make stop                 - Zastav a smaž Daily boty z K8S"
-	@echo "  make status               - Zobraz stav Daily botů"
-	@echo "  make logs                 - Zobraz logy botů"
-	@echo "  make shell                - Připoj se k bota"
+	@echo "  make deploy               - Generuj a nasad' všechny Daily boty na K8S"
+	@echo "  make deploy-dry           - Generuj YAML bez nasazení"
+	@echo "  make deploy-5m            - Generuj a nasad' dailybuy-5m bota"
+	@echo "  make deploy-15m           - Generuj a nasad' dailybuy-15m bota"
+	@echo "  make deploy-1h            - Generuj a nasad' dailybuy-1h bota"
+	@echo "  make deploy-4h            - Generuj a nasad' dailybuy-4h bota"
+	@echo "  make deploy-1d            - Generuj a nasad' dailybuy-1d bota"
+	@echo ""
+	@echo "  make stop                - Zastav a smaž všechny Daily boty z K8S"
+	@echo "  make stop-5m             - Zastav dailybuy-5m bota"
+	@echo "  make stop-15m            - Zastav dailybuy-15m bota"
+	@echo "  make stop-1h             - Zastav dailybuy-1h bota"
+	@echo "  make stop-4h             - Zastav dailybuy-4h bota"
+	@echo "  make stop-1d             - Zastav dailybuy-1d bota"
+	@echo "  make stop-all            - Zastav všechny dailybuy boty"
+	@echo ""
+	@echo "  make status              - Zobraz stav Daily botů"
+	@echo "  make logs                - Zobraz logy botů"
+	@echo "  make shell               - Připoj se k bota"
 	@echo ""
 	@echo "  make daily-workflow       - Kompletní workflow: hyperopt -> backtest -> deploy"
 	@echo ""
@@ -215,7 +231,7 @@ hyperopt-docker:
 # ============================================================================
 
 deploy:
-	@echo "$(YELLOW)Generování a nasazení Daily botů...$(NC)"
+	@echo "$(YELLOW)Generování a nasazení všech Daily botů...$(NC)"
 	@chmod +x autogen_daily.sh
 	@./autogen_daily.sh
 
@@ -223,10 +239,65 @@ deploy-dry:
 	@echo "$(YELLOW)Generování YAML bez nasazení...$(NC)"
 	@DEPLOY=false ./autogen_daily.sh
 
+deploy-5m:
+	@echo "$(YELLOW)Generování a nasazení dailybuy-5m...$(NC)"
+	@chmod +x autogen_daily.sh
+	@TIMEFRAME=5m ./autogen_daily.sh
+
+deploy-15m:
+	@echo "$(YELLOW)Generování a nasazení dailybuy-15m...$(NC)"
+	@chmod +x autogen_daily.sh
+	@TIMEFRAME=15m ./autogen_daily.sh
+
+deploy-1h:
+	@echo "$(YELLOW)Generování a nasazení dailybuy-1h...$(NC)"
+	@chmod +x autogen_daily.sh
+	@TIMEFRAME=1h ./autogen_daily.sh
+
+deploy-4h:
+	@echo "$(YELLOW)Generování a nasazení dailybuy-4h...$(NC)"
+	@chmod +x autogen_daily.sh
+	@TIMEFRAME=4h ./autogen_daily.sh
+
+deploy-1d:
+	@echo "$(YELLOW)Generování a nasazení dailybuy-1d...$(NC)"
+	@chmod +x autogen_daily.sh
+	@TIMEFRAME=1d ./autogen_daily.sh
+
 stop:
 	@echo "$(YELLOW)Zastavování Daily botů...$(NC)"
 	@chmod +x stop_bots_daily.sh
 	@./stop_bots_daily.sh
+
+stop-5m:
+	@echo "$(YELLOW)Zastavování dailybuy-5m...$(NC)"
+	@chmod +x stop_bots_daily.sh
+	@./stop_bots_daily.sh dailybuy-5m
+
+stop-15m:
+	@echo "$(YELLOW)Zastavování dailybuy-15m...$(NC)"
+	@chmod +x stop_bots_daily.sh
+	@./stop_bots_daily.sh dailybuy-15m
+
+stop-1h:
+	@echo "$(YELLOW)Zastavování dailybuy-1h...$(NC)"
+	@chmod +x stop_bots_daily.sh
+	@./stop_bots_daily.sh dailybuy-1h
+
+stop-4h:
+	@echo "$(YELLOW)Zastavování dailybuy-4h...$(NC)"
+	@chmod +x stop_bots_daily.sh
+	@./stop_bots_daily.sh dailybuy-4h
+
+stop-1d:
+	@echo "$(YELLOW)Zastavování dailybuy-1d...$(NC)"
+	@chmod +x stop_bots_daily.sh
+	@./stop_bots_daily.sh dailybuy-1d
+
+stop-all:
+	@echo "$(YELLOW)Zastavování všech dailybuy botů...$(NC)"
+	@chmod +x stop_bots_daily.sh
+	@./stop_bots_daily.sh all
 
 restart: stop deploy
 	@echo "$(GREEN)Daily boty restartovány$(NC)"

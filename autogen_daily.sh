@@ -49,6 +49,9 @@ TIMEFRAME_CONFIG["bots_dailybuy_1h"]="1h"
 TIMEFRAME_CONFIG["bots_dailybuy_4h"]="4h"
 TIMEFRAME_CONFIG["bots_dailybuy_1d"]="1d"
 
+# Filtr pro specifický timeframe (pokud je nastaven)
+TIMEFRAME_FILTER=${TIMEFRAME:-all}
+
 # --- HELPER FUNKCE ---
 b64encode() { echo -n "$1" | base64 -w 0; }
 
@@ -128,6 +131,11 @@ for BOT_DIR_NAME in "${!TIMEFRAME_CONFIG[@]}"; do
     BOT_DIR_PATH="${SCRIPT_DIR}/${BOT_DIR_NAME}"
     TIMEFRAME="${TIMEFRAME_CONFIG[$BOT_DIR_NAME]}"
     BOT_NAME="dailybuy-${TIMEFRAME}"
+
+    # Filtr pro specifický timeframe
+    if [ "$TIMEFRAME_FILTER" != "all" ] && [ "$TIMEFRAME_FILTER" != "$TIMEFRAME" ]; then
+        continue
+    fi
 
     if [ ! -d "$BOT_DIR_PATH" ]; then
         echo "   ⚠️  Složka neexistuje: $BOT_DIR_PATH - vytvářím..."
