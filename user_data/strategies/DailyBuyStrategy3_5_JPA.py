@@ -14,6 +14,8 @@ from freqtrade.strategy import (DecimalParameter, IStrategy, IntParameter)
 class DailyBuyStrategy3_5_JPA(IStrategy):
     INTERFACE_VERSION = 3
 
+    short_enabled = True
+
     minimal_roi = {
         "0": 0.03
     }
