@@ -20,6 +20,9 @@ PAIR?=BTC/USDT:USDT
 PAIRS?=BTC/USDT:USDT ETH/USDT:USDT
 NAMESPACE?=default
 
+KUBECONFIG?=${HOME}/.kube/config
+K8S_NODE?=188.165.193.142
+
 DOCKER_IMAGE?=freqtradeorg/freqtrade:latest
 DOCKER_BUILD_IMAGE?=freqtrade-daily:latest
 DOCKERFILE?=Dockerfile
@@ -227,19 +230,19 @@ restart: stop deploy
 	@echo "$(GREEN)Daily boty restartovány$(NC)"
 
 status:
-	@echo "$(YELLOW)Stav Daily botů...$(NC)"
-	@kubectl get pods -n $(NAMESPACE) -l 'app.kubernetes.io/name~^daily' 2>/dev/null || echo "kubectl nenalezen nebo žádné boty"
-	@kubectl get svc -n $(NAMESPACE) 2>/dev/null | grep daily || echo ""
+	@echo "$(YELLOW)Stav Daily botů na $(K8S_NODE)...$(NC)"
+	@KUBECONFIG=$(KUBECONFIG) kubectl get pods -n $(NAMESPACE) -l 'app.kubernetes.io/name~^daily' 2>/dev/null || echo "kubectl nenalezen nebo žádné boty"
+	@KUBECONFIG=$(KUBECONFIG) kubectl get svc -n $(NAMESPACE) 2>/dev/null | grep daily || echo ""
 
 logs:
-	@echo "$(YELLOW)Logy Daily botů...$(NC)"
-	@kubectl logs -n $(NAMESPACE) -l 'app.kubernetes.io/name~^daily' --tail=50 2>/dev/null || echo ""
+	@echo "$(YELLOW)Logy Daily botů na $(K8S_NODE)...$(NC)"
+	@KUBECONFIG=$(KUBECONFIG) kubectl logs -n $(NAMESPACE) -l 'app.kubernetes.io/name~^daily' --tail=50 2>/dev/null || echo ""
 
 shell:
-	@echo "$(YELLOW)Připojování k shellu bota...$(NC)"
-	@POD_NAME=$$(kubectl get pods -n $(NAMESPACE) -l 'app.kubernetes.io/name=daily_5m' -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); \
+	@echo "$(YELLOW)Připojování k shellu bota na $(K8S_NODE)...$(NC)"
+	@POD_NAME=$$(KUBECONFIG=$(KUBECONFIG) kubectl get pods -n $(NAMESPACE) -l 'app.kubernetes.io/name=daily_5m' -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); \
 	if [ -n "$$POD_NAME" ]; then \
-		kubectl exec -it $$POD_NAME -n $(NAMESPACE) -- /bin/bash; \
+		KUBECONFIG=$(KUBECONFIG) kubectl exec -it $$POD_NAME -n $(NAMESPACE) -- /bin/bash; \
 	else \
 		echo "Bot daily_5m nenalezen"; \
 	fi

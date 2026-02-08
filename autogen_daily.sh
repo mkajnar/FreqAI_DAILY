@@ -6,7 +6,9 @@
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
-# --- KONFIGURACE ---
+# K8S konfigurace
+KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config}
+K8S_NODE=${K8S_NODE:-188.165.193.142}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_FILE="${SCRIPT_DIR}/DailyBuyStrategy3_5_JPA_TEMPLATE.py"
 DB_BASE_HOST_PATH="${DB_BASE_HOST_PATH:-/mnt/ft}"
@@ -372,8 +374,8 @@ EOF
     # 6) NASAZENÍ (volitelné)
     if [ "${DEPLOY}" = "true" ]; then
         if command -v kubectl >/dev/null 2>&1; then
-            echo "   🚀 Nasazuji přes kubectl apply -f ${BOT_DIR_PATH}/"
-            kubectl apply -f "${BOT_DIR_PATH}/"
+            echo "   🚀 Nasazuji na ${K8S_NODE} přes kubectl apply -f ${BOT_DIR_PATH}/"
+            KUBECONFIG="${KUBECONFIG}" kubectl apply -f "${BOT_DIR_PATH}/"
         else
             echo "   ⚠️ kubectl nenalezen, přeskočeno nasazení."
         fi

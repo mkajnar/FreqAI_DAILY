@@ -10,6 +10,8 @@
 set -uo pipefail
 
 BOTS_DIR_PATTERN="${1:-bots_daily_*}"
+KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config}
+K8S_NODE=${K8S_NODE:-188.165.193.142}
 
 # Find all matching directories
 mapfile -t BOT_DIRS < <(find "${SCRIPT_DIR:-.}" -maxdepth 1 -mindepth 1 -type d -name "$BOTS_DIR_PATTERN" | sort)
@@ -28,7 +30,7 @@ for dir in "${BOT_DIRS[@]}"; do
   any=true
   ((processed++))
   echo "Mazání prostředků ve složce: $dir"
-  if kubectl delete -f "$dir" 2>/dev/null; then
+  if KUBECONFIG="${KUBECONFIG}" kubectl delete -f "$dir" 2>/dev/null; then
     ((success++))
   else
     echo "⚠️ Neúspěšné/neexistující mazání ve složce: $dir" >&2
