@@ -65,8 +65,10 @@ def generate_config(config_path, pairs):
         },
         "api_server": {
             "enabled": True,
-            "listen_ip": "0.0.0.0",
-            "listen_port": 8080
+            "listen_ip_address": "0.0.0.0",
+            "listen_port": 8080,
+            "username": "freqtrade",
+            "password": "freqtrade"
         }
     }
 
