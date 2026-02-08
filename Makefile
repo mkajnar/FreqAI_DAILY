@@ -201,7 +201,7 @@ backtest:
 		--strategy-path user_data/strategies \
 		--timeframe $(TIMEFRAME) \
 		--timerange $(BACKTEST_START)-$(BACKTEST_END) \
-		--export-trades || true
+		--export trades || true
 
 backtest-docker:
 	@echo "$(YELLOW)Spouštění backtestu v Dockeru...$(NC)"
@@ -216,7 +216,7 @@ backtest-docker:
 		--strategy-path /freqtrade/user_data/strategies \
 		--timeframe $(TIMEFRAME) \
 		--timerange $(BACKTEST_START)-$(BACKTEST_END) \
-		--export-trades || true
+		--export trades || true
 
 # ============================================================================
 # HYPEROPT TARGETS
