@@ -59,7 +59,9 @@ def generate_config(config_path, pairs):
             }
         ],
         "telegram": {
-            "enabled": False
+            "enabled": False,
+            "token": "dummy_token",
+            "chat_id": "0"
         },
         "api_server": {
             "enabled": True,

@@ -53,7 +53,9 @@
     }
   ],
   "telegram": {
-    "enabled": false
+    "enabled": false,
+    "token": "dummy_token",
+    "chat_id": "0"
   },
   "api_server": {
     "enabled": true,
