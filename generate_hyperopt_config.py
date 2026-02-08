@@ -10,11 +10,11 @@ def generate_config(config_path, pairs):
     config = {
         "max_open_trades": 5,
         "stake_currency": "USDT",
-        "stake_amount": 100.0,
+        "stake_amount": "unlimited",
         "tradable_balance_ratio": 0.95,
         "fiat_display_currency": "USD",
         "dry_run": True,
-        "dry_run_wallet": 10000,
+        "dry_run_wallet": 200,
         "cancel_open_orders_on_exit": False,
         "trading_mode": "futures",
         "margin_mode": "isolated",
