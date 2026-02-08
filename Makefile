@@ -165,7 +165,9 @@ prepare-docker:
 	@echo "$(YELLOW)Příprava prostředí (config + strategie)...$(NC)"
 	@mkdir -p user_data/strategies
 	@mkdir -p user_data/hyperopts
-	@cp DailyBuyStrategy3_5_JPA_TEMPLATE.py user_data/strategies/DailyBuyStrategy3_5_JPA_TEMPLATE.py
+	@cp DailyBuyStrategy3_5_JPA_TEMPLATE.py user_data/strategies/
+	@sed -i 's/{{CLASS_NAME}}/$(STRATEGY)/g' user_data/strategies/DailyBuyStrategy3_5_JPA_TEMPLATE.py
+	@sed -i 's/{{LEVERAGE}}/10/g' user_data/strategies/DailyBuyStrategy3_5_JPA_TEMPLATE.py
 	@if [ -f "DailyBuyStrategy3_5_JPA.json" ]; then \
 		cp DailyBuyStrategy3_5_JPA.json user_data/; \
 	fi

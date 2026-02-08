@@ -12,14 +12,14 @@ from freqtrade.persistence import Trade, CustomDataWrapper
 from freqtrade.strategy import (DecimalParameter, IStrategy, IntParameter)
 
 
-class {{CLASS_NAME}}(IStrategy):
+class DailyBuyStrategy3_5_JPA(IStrategy):
     INTERFACE_VERSION = 3
 
     minimal_roi = {
         "0": 0.03
     }
 
-    leverage_value = {{LEVERAGE}}
+    leverage_value = 10
 
     timeframe_hierarchy = {
         '1m': '5m',
