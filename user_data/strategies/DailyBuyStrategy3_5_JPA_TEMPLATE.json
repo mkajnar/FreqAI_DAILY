@@ -1,21 +1,6 @@
 {
   "strategy_name": "DailyBuyStrategy3_5_JPA",
   "params": {
-    "roi": {
-      "0": 0.093,
-      "29": 0.049,
-      "53": 0.011,
-      "121": 0
-    },
-    "stoploss": {
-      "stoploss": -0.149
-    },
-    "trailing": {
-      "trailing_stop": true,
-      "trailing_stop_positive": 0.003,
-      "trailing_stop_positive_offset": 0.008,
-      "trailing_only_offset_is_reached": true
-    },
     "max_open_trades": {
       "max_open_trades": 5
     },
@@ -25,17 +10,32 @@
       "max_dca_count": 10,
       "swing_min_periods": 10,
       "swing_window": 50,
-      "buy_ema_long": 132,
-      "buy_ema_short": 19,
-      "dca_inc": 2.492,
-      "lookback_length": 20,
-      "upper_trigger_level": 93
+      "buy_ema_long": 110,
+      "buy_ema_short": 34,
+      "dca_inc": 2.761,
+      "lookback_length": 17,
+      "upper_trigger_level": 57
     },
     "sell": {
       "new_sl_coef": 0.75,
-      "lower_trigger_level": -202
+      "lower_trigger_level": -136
+    },
+    "roi": {
+      "0": 0.192,
+      "19": 0.032,
+      "65": 0.013,
+      "172": 0
+    },
+    "stoploss": {
+      "stoploss": -0.059
+    },
+    "trailing": {
+      "trailing_stop": true,
+      "trailing_stop_positive": 0.089,
+      "trailing_stop_positive_offset": 0.09,
+      "trailing_only_offset_is_reached": false
     }
   },
   "ft_stratparam_v": 1,
-  "export_time": "2026-02-08 21:41:06.314409+00:00"
+  "export_time": "2026-02-08 21:58:42.312357+00:00"
 }
