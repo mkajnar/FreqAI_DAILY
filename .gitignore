@@ -1,0 +1,18 @@
+# FreqTrade data files
+user_data/hyperopt_results/
+user_data/backtest_results/
+user_data/data/
+*.fthypt
+*.lock
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
