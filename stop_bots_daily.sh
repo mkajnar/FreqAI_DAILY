@@ -1,52 +1,51 @@
 #!/usr/bin/env bash
 
-# Stops (deletes) Kubernetes resources defined in each subdirectory of the
-# provided bots_daily_* directory by running `kubectl delete -f <subdir>`.
-#
+# Stops (deletes) Kubernetes resources for Daily boty
 # Usage:
-#   ./stop_bots_daily.sh               # uses default pattern "bots_daily_*"
-#   ./stop_bots_daily.sh /path/to/bots_daily_5m # specify custom directory
+#   ./stop_bots_daily.sh               # deletes all dailybuy-* bots from K8S
 
 set -uo pipefail
 
-BOTS_DIR_PATTERN="${1:-bots_daily_*}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config}
 K8S_NODE=${K8S_NODE:-188.165.193.142}
+NAMESPACE=${NAMESPACE:-default}
 
-# Find all matching directories
-mapfile -t BOT_DIRS < <(find "${SCRIPT_DIR:-.}" -maxdepth 1 -mindepth 1 -type d -name "$BOTS_DIR_PATTERN" | sort)
+echo "Zastavování Daily botů na ${K8S_NODE}..."
 
-if [ ${#BOT_DIRS[@]} -eq 0 ]; then
-  echo "Chyba: Nenalezeny žádné složky odpovídající vzoru: $BOTS_DIR_PATTERN" >&2
-  exit 1
-fi
-
+# Delete all dailybuy-* deployments
 processed=0
 success=0
 failed=0
-any=false
 
-for dir in "${BOT_DIRS[@]}"; do
-  any=true
-  ((processed++))
-  echo "Mazání prostředků ve složce: $dir"
-  if KUBECONFIG="${KUBECONFIG}" kubectl delete -f "$dir" 2>/dev/null; then
-    ((success++))
-  else
-    echo "⚠️ Neúspěšné/neexistující mazání ve složce: $dir" >&2
-    ((failed++))
-  fi
-  echo
+# Get all dailybuy pods
+for bot in dailybuy-5m dailybuy-15m dailybuy-1h dailybuy-4h dailybuy-1d; do
+    ((processed++))
+    echo "Mazání prostředků pro: $bot"
+
+    # Delete deployment/namespace
+    if KUBECONFIG="$KUBECONFIG" kubectl delete -n "$NAMESPACE" "deploy/$bot" --ignore-not-found=true 2>/dev/null; then
+        ((success++))
+    else
+        echo "⚠️ Deployment $bot neexistuje nebo chyba"
+    fi
+
+    # Delete service
+    if KUBECONFIG="$KUBECONFIG" kubectl delete -n "$NAMESPACE" "svc/${bot}-service" --ignore-not-found=true 2>/dev/null; then
+        :
+    fi
+
+    # Delete secret
+    if KUBECONFIG="$KUBECONFIG" kubectl delete -n "$NAMESPACE" "secret/${bot}-secret" --ignore-not-found=true 2>/dev/null; then
+        :
+    fi
+
+    echo ""
 done
 
-if [[ "$any" == false ]]; then
-  echo "Ve složce '$BOTS_DIR_PATTERN' nebyly nalezeny žádné podsložky." >&2
-  exit 1
-fi
-
-echo "Zpracováno podsložek: $processed | Úspěšně: $success | Chyby: $failed"
+echo "Zpracováno: $processed | Úspěšně: $success"
 
 if [[ $failed -gt 0 ]]; then
-  exit 1
+    exit 1
 fi
 exit 0

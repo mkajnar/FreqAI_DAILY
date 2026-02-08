@@ -43,11 +43,11 @@ fi
 
 # Konfigurace timeframe - složka pro každý timeframe
 declare -A TIMEFRAME_CONFIG
-TIMEFRAME_CONFIG["bots_daily_5m"]="5m"
-TIMEFRAME_CONFIG["bots_daily_15m"]="15m"
-TIMEFRAME_CONFIG["bots_daily_1h"]="1h"
-TIMEFRAME_CONFIG["bots_daily_4h"]="4h"
-TIMEFRAME_CONFIG["bots_daily_1d"]="1d"
+TIMEFRAME_CONFIG["bots_dailybuy_5m"]="5m"
+TIMEFRAME_CONFIG["bots_dailybuy_15m"]="15m"
+TIMEFRAME_CONFIG["bots_dailybuy_1h"]="1h"
+TIMEFRAME_CONFIG["bots_dailybuy_4h"]="4h"
+TIMEFRAME_CONFIG["bots_dailybuy_1d"]="1d"
 
 # --- HELPER FUNKCE ---
 b64encode() { echo -n "$1" | base64 -w 0; }
@@ -127,8 +127,8 @@ PORT_OFFSET=0
 for BOT_DIR_NAME in "${!TIMEFRAME_CONFIG[@]}"; do
     BOT_DIR_PATH="${SCRIPT_DIR}/${BOT_DIR_NAME}"
     TIMEFRAME="${TIMEFRAME_CONFIG[$BOT_DIR_NAME]}"
-    BOT_NAME="daily_${TIMEFRAME}"
-    
+    BOT_NAME="dailybuy-${TIMEFRAME}"
+
     if [ ! -d "$BOT_DIR_PATH" ]; then
         echo "   ⚠️  Složka neexistuje: $BOT_DIR_PATH - vytvářím..."
         mkdir -p "$BOT_DIR_PATH"

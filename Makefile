@@ -39,8 +39,8 @@ NC=\033[0m
 	docker-pull docker-build docker-build-push docker-run-shell docker-hyperopt \
 	prepare-docker prepare-docker-hyperopt download-data \
 	backtest backtest-docker hyperopt hyperopt-docker \
-	deploy stop restart status logs shell \
-	daily-workflow daily-deploy daily-stop daily-status
+	deploy deploy-dry stop restart status logs shell \
+	daily-workflow
 
 # ============================================================================
 # HELP
@@ -233,20 +233,20 @@ restart: stop deploy
 
 status:
 	@echo "$(YELLOW)Stav Daily botů na $(K8S_NODE)...$(NC)"
-	@KUBECONFIG=$(KUBECONFIG) kubectl get pods -n $(NAMESPACE) -l 'app.kubernetes.io/name~^daily' 2>/dev/null || echo "kubectl nenalezen nebo žádné boty"
-	@KUBECONFIG=$(KUBECONFIG) kubectl get svc -n $(NAMESPACE) 2>/dev/null | grep daily || echo ""
+	@KUBECONFIG=$(KUBECONFIG) kubectl get pods -n $(NAMESPACE) -l 'app in (dailybuy-5m,dailybuy-15m,dailybuy-1h,dailybuy-4h,dailybuy-1d)' 2>/dev/null || echo "kubectl nenalezen nebo žádné boty"
+	@KUBECONFIG=$(KUBECONFIG) kubectl get svc -n $(NAMESPACE) 2>/dev/null | grep dailybuy || echo ""
 
 logs:
 	@echo "$(YELLOW)Logy Daily botů na $(K8S_NODE)...$(NC)"
-	@KUBECONFIG=$(KUBECONFIG) kubectl logs -n $(NAMESPACE) -l 'app.kubernetes.io/name~^daily' --tail=50 2>/dev/null || echo ""
+	@KUBECONFIG=$(KUBECONFIG) kubectl logs -n $(NAMESPACE) -l 'app in (dailybuy-5m,dailybuy-15m,dailybuy-1h,dailybuy-4h,dailybuy-1d)' --tail=50 2>/dev/null || echo ""
 
 shell:
 	@echo "$(YELLOW)Připojování k shellu bota na $(K8S_NODE)...$(NC)"
-	@POD_NAME=$$(KUBECONFIG=$(KUBECONFIG) kubectl get pods -n $(NAMESPACE) -l 'app.kubernetes.io/name=daily_5m' -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); \
+	@POD_NAME=$$(KUBECONFIG=$(KUBECONFIG) kubectl get pods -n $(NAMESPACE) -l 'app=dailybuy-5m' -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); \
 	if [ -n "$$POD_NAME" ]; then \
 		KUBECONFIG=$(KUBECONFIG) kubectl exec -it $$POD_NAME -n $(NAMESPACE) -- /bin/bash; \
 	else \
-		echo "Bot daily_5m nenalezen"; \
+		echo "Bot dailybuy-5m nenalezen"; \
 	fi
 
 # ============================================================================
