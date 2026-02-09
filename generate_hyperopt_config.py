@@ -8,7 +8,7 @@ import os
 
 def generate_config(config_path, pairs):
     config = {
-        "max_open_trades": 5,
+        "max_open_trades": 2,
         "stake_currency": "USDT",
         "stake_amount": "unlimited",
         "tradable_balance_ratio": 0.95,
@@ -83,6 +83,6 @@ if __name__ == "__main__":
         sys.exit(1)
     
     config_path = sys.argv[1]
-    pairs = sys.argv[2] if len(sys.argv) > 2 else "RIVER/USDT BTC/USDT ETH/USDT"
+    pairs = sys.argv[2] if len(sys.argv) > 2 else "BTC/USDT:USDT ETH/USDT:USDT"
     
     generate_config(config_path, pairs)
