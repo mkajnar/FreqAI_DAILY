@@ -37,6 +37,10 @@ YELLOW=\033[0;33m
 RED=\033[0;31m
 NC=\033[0m
 
+# Detekce počtu CPU jader
+NPROC=$(shell nproc 2>/dev/null || echo 4)
+JOBS?=$(NPROC)
+
 # ============================================================================
 # ALL PHONY TARGETS - CENTRÁLNÍ SEZNAM
 # ============================================================================
@@ -308,7 +312,7 @@ hyperopt-buy-docker: prepare-docker-hyperopt-light
 		--space buy \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e $(EPOCHS) \
-		-j 8 || true
+		-j $(JOBS) || true
 
 hyperopt-sell: copy-strategy
 	@echo "$(YELLOW)Spouštění hyperopt pro SELL parametry...$(NC)"
@@ -410,7 +414,7 @@ hyperopt-all-nosl-docker: prepare-docker-hyperopt-light
 		--space buy sell roi trailing \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e $(EPOCHS) \
-		-j 8 || true
+		-j $(JOBS) || true
 
 hyperopt-sell-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (SELL)...$(NC)"
@@ -428,7 +432,7 @@ hyperopt-sell-docker: prepare-docker-hyperopt-light
 		--space sell \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e $(EPOCHS) \
-		-j 8 || true
+		-j $(JOBS) || true
 
 hyperopt-trailing-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (TRAILING STOP)...$(NC)"
@@ -446,7 +450,7 @@ hyperopt-trailing-docker: prepare-docker-hyperopt-light
 		--space trailing \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e $(EPOCHS) \
-		-j 8 || true
+		-j $(JOBS) || true
 
 hyperopt-roi-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (ROI)...$(NC)"
@@ -464,7 +468,7 @@ hyperopt-roi-docker: prepare-docker-hyperopt-light
 		--space roi \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e $(EPOCHS) \
-		-j 8 || true
+		-j $(JOBS) || true
 
 hyperopt-quick-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění QUICK hyperopt na Dockeru (BUY, 50 epoch)...$(NC)"
@@ -482,7 +486,7 @@ hyperopt-quick-docker: prepare-docker-hyperopt-light
 		--space buy \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e 50 \
-		-j 8 || true
+		-j $(JOBS) || true
 
 hyperopt-all-docker: prepare-docker-hyperopt-light
 	@echo "$(YELLOW)Spouštění hyperopt na Dockeru (BUY, SELL, ROI, STOPLOSS, TRAILING)...$(NC)"
@@ -500,7 +504,7 @@ hyperopt-all-docker: prepare-docker-hyperopt-light
 		--space buy sell roi stoploss trailing \
 		--timerange $(HYPEROPT_START)-$(HYPEROPT_END) \
 		-e $(EPOCHS) \
-		-j 8 || true
+		-j $(JOBS) || true
 hyperopt-all-nosltsl: copy-strategy
 	@echo "$(YELLOW)Spouštění hyperopt pro BUY a ROI (bez SELL/TRAILING/STOPLOSS)...$(NC)"
 	@kubectl exec -n $(NAMESPACE) -it $(POD_NAME) -- bash -c "freqtrade hyperopt \
@@ -741,6 +745,11 @@ help:
 	@echo "$(GREEN)FreqTrade Kubernetes Makefile - Dostupné příkazy$(NC)"
 	@echo "$(GREEN)════════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
+	@echo "$(YELLOW)INFORMACE O SYSTÉMU:$(NC)"
+	@echo "  CPU jádra detekována: $(NPROC)"
+	@echo "  Hyperopt jobs (-j): $(JOBS)"
+	@echo "  Příkaz: make hyperopt-all-docker JOBS=4 (pro změnu počtu jobů)"
+	@echo ""
 	@echo "$(YELLOW)TESTING & CODE QUALITY:$(NC)"
 	@echo "  make test                      - Spusť všechny testy (unit + integration)"
 	@echo "  make test-unit                 - Spusť unit testy (15 testů)"
@@ -809,6 +818,7 @@ help:
 	@echo "  make TARGET TIMEFRAME=5m       - Změnit timeframe"
 	@echo "  make TARGET EPOCHS=5000        - Počet epoch pro hyperopt"
 	@echo "  make TARGET DATA_START=20250101 DATA_END=20250131 - Datový rozsah"
+	@echo "  make TARGET JOBS=4             - Počet paralelních jobů pro hyperopt (default: detekováno)"
 	@echo "  make make TARGET DEPLOYMENT=bot-name - Změnit bot (default: freqai-t3v2-5m-lev4-bot)"
 	@echo ""
 	@echo "$(CYAN)DOCKER HYPEROPT WORKFLOW (Local):$(NC)"
