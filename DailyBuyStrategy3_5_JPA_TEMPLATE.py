@@ -72,6 +72,7 @@ class DailyBuyStrategy3_5_JPA(IStrategy):
     max_dca_count = IntParameter(1, 10, default=10, space='buy', optimize=False)
     dca_inc = DecimalParameter(1.2, 3.0, default=1.5, space='buy', optimize=True)
     stake_amount_coef = DecimalParameter(0.1, 1.0, default=1.0, space='buy', optimize=True)
+    lev_koef = DecimalParameter(0.1, 0.9, default=0.5, space='buy', optimize=True)
 
     # buy_rsi = IntParameter(25, 60, default=55, space='buy', optimize=False)
     # sell_rsi = IntParameter(50, 70, default=70, space='sell', optimize=False)
@@ -108,30 +109,49 @@ class DailyBuyStrategy3_5_JPA(IStrategy):
                  proposed_leverage: float, max_leverage: float, entry_tag: Optional[str],
                  side: str, **kwargs) -> float:
         """
-        Dynamický leverage dle ATR volatility na 5m timeframu.
+        Dynamický leverage dle ATR volatility (1-5x) násobený hyperopt koeficientem.
 
-        Logika:
-        - ATR < 0.5% Close → leverage 3x (nízká volatilita)
-        - ATR 0.5% - 1.5% Close → leverage 2x (normální)
-        - ATR > 1.5% Close → leverage 1x (vysoká volatilita)
-
-        Bezpečnost: Využívá poslední ATR % ze populate_indicators()
+        Logika ATR:
+        - ATR < 0.5% Close → base leverage 5x (velmi nízká volatilita)
+        - ATR 0.5% - 1.0% Close → base leverage 4x (nízká volatilita)
+        - ATR 1.0% - 1.5% Close → base leverage 3x (normální)
+        - ATR 1.5% - 2.0% Close → base leverage 2x (vyšší volatilita)
+        - ATR > 2.0% Close → base leverage 1x (vysoká volatilita)
+        
+        Finální leverage = base_leverage * lev_koef (0.1-0.9)
+        
+        Příklady:
+        - Nízka volatilita (ATR 0.3%) → 5x * 0.5 = 2.5x
+        - Normální (ATR 1.2%) → 3x * 0.5 = 1.5x
+        - Vysoká (ATR 2.5%) → 1x * 0.5 = 0.5x
         """
         try:
             # Načti poslední ATR % ze self (uloženo v populate_indicators)
             atr_percent = getattr(self, 'current_atr_percent', 1.0)
 
-            # Logika pro přiřazení leveragu dle volatility
+            # Logika pro přiřazení base leveragu dle volatility (1-5x)
             if atr_percent < 0.5:
-                return 3.0  # Velmi nízká volatilita
+                base_leverage = 5.0  # Velmi nízká volatilita
+            elif atr_percent < 1.0:
+                base_leverage = 4.0  # Nízká volatilita
             elif atr_percent < 1.5:
-                return 2.0  # Normální volatilita
+                base_leverage = 3.0  # Normální volatilita
+            elif atr_percent < 2.0:
+                base_leverage = 2.0  # Vyšší volatilita
             else:
-                return 1.0  # Vysoká volatilita
+                base_leverage = 1.0  # Vysoká volatilita
+
+            # Aplikuj hyperopt koeficient (0.1-0.9)
+            final_leverage = base_leverage * self.lev_koef.value
+            
+            # Omez na maximum
+            final_leverage = min(final_leverage, max_leverage)
+
+            return final_leverage
 
         except Exception as e:
             logging.error(f"Error in leverage: {e}")
-            return 2.0  # Fallback: mid leverage
+            return 1.5  # Fallback: konzervativní mid leverage
 
     def calculate_swing(self, dataframe):
         swing_low = pd.Series(
