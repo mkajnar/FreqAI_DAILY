@@ -107,6 +107,7 @@ prepare-docker-hyperopt:
 
 download-data-docker:
 	@echo "$(YELLOW)Stahování tržních dat (PAIRS=$(PAIRS)) - včetně 1m...$(NC)"
+	@echo "$(CYAN)Inkrementální stahování (jen chybějící data)$(NC)"
 	@for tf in 1m 5m 15m 1h 2h 4h 1d 1w; do \
 		echo "  Stahování $$tf..."; \
 		docker run --rm \
@@ -118,17 +119,17 @@ download-data-docker:
 			--pairs $(PAIRS) \
 			--timerange $(DATA_START)-$(DATA_END) \
 			--timeframe $$tf \
-			--erase \
 			-c /freqtrade/user_data/config.json || true; \
 	done
 	@echo ""
 	@echo "$(YELLOW)Kontrola stažených dat:$(NC)"
 	@ls -la user_data/data/bybit/ 2>/dev/null || echo "Žádná data nenalezena"
 	@echo ""
-	@echo "$(GREEN)Data stažena (včetně 1m)$(NC)"
+	@echo "$(GREEN)Data stažena inkrementálně (včetně 1m)$(NC)"
 
 download-data-docker-no1m:
 	@echo "$(YELLOW)Stahování tržních dat (PAIRS=$(PAIRS)) - BEZ 1m...$(NC)"
+	@echo "$(CYAN)Inkrementální stahování (jen chybějící data)$(NC)"
 	@for tf in 5m 15m 1h 2h 4h 1d 1w; do \
 		echo "  Stahování $$tf..."; \
 		docker run --rm \
@@ -140,14 +141,13 @@ download-data-docker-no1m:
 			--pairs $(PAIRS) \
 			--timerange $(DATA_START)-$(DATA_END) \
 			--timeframe $$tf \
-			--erase \
 			-c /freqtrade/user_data/config.json || true; \
 	done
 	@echo ""
 	@echo "$(YELLOW)Kontrola stažených dat:$(NC)"
 	@ls -la user_data/data/bybit/ 2>/dev/null || echo "Žádná data nenalezena"
 	@echo ""
-	@echo "$(GREEN)Data stažena (BEZ 1m)$(NC)"
+	@echo "$(GREEN)Data stažena inkrementálně (BEZ 1m)$(NC)"
 
 prepare-docker-hyperopt-full: prepare-docker-hyperopt download-data-docker
 	@echo "$(GREEN)Docker hyperopt zcela připraven (config + strategie + data včetně 1m)$(NC)"
