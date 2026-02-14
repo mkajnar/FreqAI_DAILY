@@ -10,7 +10,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config}
-K8S_NODE=${K8S_NODE:-188.165.193.142}
+K8S_NODE=${K8S_NODE:-127.0.0.1}
 NAMESPACE=${NAMESPACE:-default}
 
 BOT_PATTERN="${1:-all}"

@@ -8,7 +8,7 @@ set -euo pipefail
 
 # K8S konfigurace
 KUBECONFIG=${KUBECONFIG:-$HOME/.kube/config}
-K8S_NODE=${K8S_NODE:-188.165.193.142}
+K8S_NODE=${K8S_NODE:-127.0.0.1}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_FILE="${SCRIPT_DIR}/DailyBuyStrategy3_5_JPA_TEMPLATE.py"
 DB_BASE_HOST_PATH="${DB_BASE_HOST_PATH:-/mnt/ft}"
@@ -376,7 +376,7 @@ spec:
 EOF
 
     echo "   ✅ YAML vygenerován: ${BOT_DIR_PATH}"
-    BOT_URL="http://188.165.193.142:${CURRENT_NODEPORT}/trade"
+    BOT_URL="http://${K8S_NODE}:${CURRENT_NODEPORT}/trade"
     SUMMARY+="${BOT_NAME} -> ${BOT_URL}\n"
 
     # 6) NASAZENÍ (volitelné)
