@@ -147,7 +147,7 @@ for BOT_DIR_NAME in "${!TIMEFRAME_CONFIG[@]}"; do
 
     # Konfigurace pro PERPETUAL FUTURES
     NAMESPACE="default"
-    STAKE_AMOUNT="100 USDT"
+    STAKE_AMOUNT="unlimited"
     FIAT_DISPLAY="USD"
     PAIRS_INPUT="BTC/USDT:USDT,ETH/USDT:USDT"
     MAX_OPEN_TRADES=5
@@ -242,9 +242,7 @@ spec:
           path: ${SCRIPT_DIR}/${BOT_DIR_NAME}/data
           type: DirectoryOrCreate
       - name: database-dir
-        hostPath:
-          path: ${DB_BASE_HOST_PATH}/${BOT_NAME}
-          type: DirectoryOrCreate
+        emptyDir: {}
       - name: dshm
         emptyDir:
           medium: Memory
