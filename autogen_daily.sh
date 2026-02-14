@@ -231,6 +231,8 @@ spec:
     enabled: false
   deployment:
     env: []
+    nodeSelector:
+      kubernetes.io/hostname: debian
     resources:
       requests:
         cpu: "1000m"
