@@ -211,8 +211,10 @@ for BOT_DIR_NAME in "${!TIMEFRAME_CONFIG[@]}"; do
     # 4) ADRESÁŘE
     mkdir -p "${BOT_DIR_PATH}/data"
     mkdir -p /mnt/ft_etc
+    mkdir -p "${DB_BASE_HOST_PATH}/${BOT_NAME}"
     chmod -R 777 "${BOT_DIR_PATH}/data" 2>/dev/null || true
     chmod -R 777 /mnt/ft_etc 2>/dev/null || true
+    chmod -R 777 "${DB_BASE_HOST_PATH}/${BOT_NAME}" 2>/dev/null || true
 
     # 5) GENERACE bot.yaml
      cat > "${BOT_DIR_PATH}/bot.yaml" <<EOF
@@ -242,7 +244,9 @@ spec:
           path: ${SCRIPT_DIR}/${BOT_DIR_NAME}/data
           type: DirectoryOrCreate
       - name: database-dir
-        emptyDir: {}
+        hostPath:
+          path: ${DB_BASE_HOST_PATH}/${BOT_NAME}
+          type: DirectoryOrCreate
       - name: dshm
         emptyDir:
           medium: Memory

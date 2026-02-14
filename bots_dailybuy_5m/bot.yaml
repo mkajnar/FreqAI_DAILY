@@ -11,6 +11,8 @@ spec:
     enabled: false
   deployment:
     env: []
+    nodeSelector:
+      kubernetes.io/hostname: debian
     resources:
       requests:
         cpu: "1000m"
@@ -24,7 +26,9 @@ spec:
           path: /vz/FreqAI_DAILY/bots_dailybuy_5m/data
           type: DirectoryOrCreate
       - name: database-dir
-        emptyDir: {}
+        hostPath:
+          path: /mnt/ft/dailybuy-5m
+          type: DirectoryOrCreate
       - name: dshm
         emptyDir:
           medium: Memory
